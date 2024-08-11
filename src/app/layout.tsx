@@ -5,8 +5,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TakeyouForward",
-  description: "Task from striver",
+  metadataBase: new URL("https://take-uforward-task-tenzin.vercel.app"),
+  title: "TakeUForward Task",
+  description: "Task done by Tenzin Delek for SWE role at TakeUforward",
 };
 
 export default function RootLayout({
