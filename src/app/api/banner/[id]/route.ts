@@ -1,21 +1,40 @@
-// pages/api/banner/[id].js
+import prisma from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 
-import prisma from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const id = params.id;
+    await prisma.bannerSettings.delete({
+      where: { id: parseInt(id) },
+    });
+    return NextResponse.json({ message: 'Banner deleted successfully' });
+  } catch (error) {
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
+  }
+}
 
-
-export async function  DELETE (req: NextRequest) {
-    try {
-      const id = req.json();
-      await prisma.bannerSettings.delete({
-        where: {
-          id: Number(id),
-        },
-      });
-      return NextResponse.json({ message: 'done' });
-    } catch (error) {
-      console.error('Error deleting banner:', error);
-      return NextResponse.json({ error: 'Internal Server Error' });
-    }
-};
-
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const id = params.id;
+    const { description } = await request.json();
+    const updatedBanner = await prisma.bannerSettings.update({
+      where: { id: parseInt(id) },
+      data: { description },
+    });
+    return NextResponse.json({ data: updatedBanner });
+  } catch (error) {
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
+  }
+}
