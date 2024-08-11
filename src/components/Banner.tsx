@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 
@@ -8,47 +8,18 @@ interface BannerProps {
   content: {
     id: number;
     description: string;
-    timer: number;
+    timeLeft: number;
     link: string;
   };
-  onBannerRemove: () => void;
   onBannerUpdate: (updatedContent: { description: string }) => void;
 }
 
-export default function Banner({
-  content,
-  onBannerRemove,
-  onBannerUpdate,
-}: BannerProps) {
-  //these all are for loading ux
-  const [timeLeft, setTimeLeft] = useState(content.timer);
-  const [isDeleting, setIsDeleting] = useState(false);
+export default function Banner({ content, onBannerUpdate }: BannerProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [editedDescription, setEditedDescription] = useState(
     content.description
   );
-
-  useEffect(() => {
-    if (timeLeft > 0) {
-      const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timerId);
-    } else {
-      removeBanner(content.id);
-    }
-  }, [timeLeft, content.id]);
-
-  const removeBanner = async (id: number) => {
-    setIsDeleting(true);
-    try {
-      await axios.delete(`/api/banner/${id}`);
-      onBannerRemove();
-    } catch (error) {
-      console.error("Error removing banner:", error);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
   const handleUpdateDescription = async () => {
     setIsUpdating(true);
@@ -65,16 +36,8 @@ export default function Banner({
     }
   };
 
-  if (isDeleting) {
-    return (
-      <div className="bg-red-500 text-white p-4 mb-4 rounded">
-        Times up banner is going in bin...
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-green-500 mt-10 text-white p-4 mb-4 rounded w-full max-w-md">
+    <div className="border-gray-500 bg-[#191919] border mt-10 text-white p-4 mb-4 rounded w-full max-w-md">
       {isEditing ? (
         <div>
           <input
@@ -101,25 +64,31 @@ export default function Banner({
           </div>
         </div>
       ) : (
-        <p>
-          {content.description}{" "}
-          <button
-            onClick={() => setIsEditing(true)}
-            className="bg-green-700 p-1 rounded ml-2"
-          >
-            Edit
-          </button>
-        </p>
+        <div>         
+          <div className=" flex items-end justify-end">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="bg-green-700 px-4 py-2 rounded-lg mr-2"
+            >
+              Edit
+            </button>
+          </div>
+          <div className=" flex items-center p-10 justify-center">
+            <p className=" text-lg font-bold">{content.description}</p>
+          </div>
+        </div>
       )}
-      <p>Time left: {timeLeft} seconds</p>
-      <Link
-        href={content.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline"
-      >
-        Learn More
-      </Link>
+      <div className=" flex items-center justify-between">
+        <p className="mt-2">Time left: {content.timeLeft} seconds</p>
+        <Link
+          href={content.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline mt-2 inline-block"
+        >
+          Click here
+        </Link>
+      </div>
     </div>
   );
 }
